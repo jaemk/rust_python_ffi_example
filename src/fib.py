@@ -86,13 +86,29 @@ def into_c_uint32(seq):
     return (ctypes.c_uint32 * len(seq))(*seq)
 
 
-if __name__ == '__main__':
-    args = sys.argv[1:]
-    top = 15
+def main(args):
+    _help = """** Rust<->Python fib test
+    Optional args:
+        --fib <n>  # nth fibonacci digit to calculate, default: 30
+        --rep <n>  # number of times to repeat the calculation, default: 15
+    """
+    ARGS = {'--fib': 30, '--rep': 15}
     if args:
-        top = int(args[0])
+        if len(args) % 2 != 0 or len(args) > 4:
+            print(_help)
+            return
+        for i in range(0, len(args), 2):
+            opt, n = args[i:i+2]
+            try:
+                n = int(n)
+                if opt not in ARGS:
+                    raise ValueError
+            except ValueError:
+                print(_help)
+                return
+            ARGS[opt] = n
 
-    nums = list(range(top))
+    nums = [ARGS['--fib'] for _ in range(ARGS['--rep'])]
     nums.reverse()
     c_nums = into_c_uint32(nums)
 
@@ -103,7 +119,7 @@ if __name__ == '__main__':
     fibs = [fib_slow(n) for n in nums]
     print('>> done in {}\n'.format(time.time() - start))
 
-    print('** rust fibbing sequentially, inside a list-comp')
+    print('** rust fibbing sequentially, inside a python list-comp')
     start = time.time()
     fibs = [lib.fib_slow(n) for n in nums]
     print('>> done in {}\n'. format(time.time() - start))
@@ -132,4 +148,8 @@ if __name__ == '__main__':
         ans = lib.fib_threaded_results(c_nums, len(nums))
         lib.drop_vec(ans.ptr, ans.len, ans.cap)
 
+
+if __name__ == '__main__':
+    args = sys.argv[1:]
+    main(args)
 

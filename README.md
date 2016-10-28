@@ -8,6 +8,9 @@ rust-Vec <-> python-list over ffi using ctypes.
 
 
     cargo build --release
-    ./src/fib.py <n>      # range(n) -- seq. to calculate fib. for
-                          # defaults to 15
+    ./src/fib.py --help
+    # ** Rust<->Python fib test
+    #    Optional args:
+    #            --fib <n>  # nth fibonacci digit to calculate, default: 30
+    #            --rep <n>  # number of times to repeat the calculation, default: 15
 
